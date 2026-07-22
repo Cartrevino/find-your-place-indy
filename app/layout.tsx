@@ -86,7 +86,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+    {/* suppressHydrationWarning: the inline script below adds a `js` class to
+        <html> before hydration, which is an intentional server/client mismatch
+        on this element only. */}
+    <html
+      lang="en"
+      className={`${playfair.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
       <body>
         {/*
          * Add a `js` class synchronously, before the body paints, so the
