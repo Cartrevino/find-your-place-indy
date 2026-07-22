@@ -1,0 +1,179 @@
+@import "tailwindcss";
+
+/*
+ * ============================================================================
+ * DESIGN SYSTEM — "Find Your Place" (Indianapolis realtor)
+ * ============================================================================
+ * Visual language: graphic-editorial. Think bold fashion/culture magazine, not
+ * a beige-and-gold realtor template. High-contrast Didone headlines, a clean
+ * grotesque for UI, generous whitespace, hairline rules, and a single decisive
+ * red accent used sparingly for emphasis.
+ *
+ * Tailwind v4 reads the `@theme` block below and generates utility classes from
+ * these tokens (e.g. `bg-paper`, `text-ink`, `text-red`, `border-hairline`).
+ * To retune the brand, change values HERE — everything downstream follows.
+ * ============================================================================
+ */
+@theme {
+  /* --- Color palette: white / red / black / grey ------------------------- */
+  --color-paper: #faf9f6; /* warm near-white — the main canvas */
+  --color-surface: #ffffff; /* pure white — raised surfaces / imagery mats */
+  --color-ink: #141414; /* near-black — headlines & primary text */
+  --color-ink-soft: #2a2a2a; /* dark surface / softer black */
+  --color-red: #c1121f; /* signature editorial red — accents only */
+  --color-red-deep: #8f0d17; /* hover/active state for red */
+  --color-grey-600: #5f5f5f; /* secondary text (AA on paper) */
+  --color-grey-400: #8a8a8a; /* muted captions / meta */
+  --color-hairline: #e3e0d9; /* thin rules & borders */
+
+  /* --- Typography -------------------------------------------------------- */
+  /* Font family variables are injected by next/font in app/layout.tsx. */
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  /* --- Layout ------------------------------------------------------------ */
+  --spacing-gutter: clamp(1.25rem, 5vw, 5rem); /* page side padding */
+  --breakpoint-xs: 26.5625rem; /* 425px — fine-tune the largest phones */
+}
+
+/*
+ * Base element styles. Kept small on purpose — most styling is done with
+ * utilities at the component level so tokens stay the single source of truth.
+ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Honor OS-level reduced-motion: disable smooth scroll + all animation. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Editorial headlines default to the Didone display face. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  /* Consistent, visible focus ring for keyboard users across the whole site. */
+  :focus-visible {
+    outline: 2px solid var(--color-red);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+
+  ::selection {
+    background-color: var(--color-red);
+    color: var(--color-surface);
+  }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Reusable editorial utilities
+ * ---------------------------------------------------------------------------
+ */
+@layer components {
+  /* Small uppercase tracked label used above headlines and as captions. */
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Constrained editorial column with responsive side gutters. */
+  .container-editorial {
+    width: 100%;
+    max-width: 90rem; /* 1440px */
+    margin-inline: auto;
+    padding-inline: var(--spacing-gutter);
+  }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Scroll-reveal choreography (paired with lib/useReveal.ts).
+ *
+ * Elements marked [data-reveal] animate in when they scroll into view. The
+ * hidden start-state is scoped to `.js` (added synchronously before paint in
+ * layout.tsx) so that WITHOUT JavaScript — or before hydration — all content is
+ * fully visible. This prevents content from ever being trapped invisible.
+ * Under prefers-reduced-motion we skip the transform/opacity entirely.
+ * ---------------------------------------------------------------------------
+ */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(1.25rem);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.js [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Hero load choreography — CSS ONLY (no JS gating).
+ *
+ * The hero is above the fold and the LCP element, so it must never wait on
+ * JavaScript. These classes run a one-time entrance animation on page load with
+ * `animation-fill-mode: both`, so the end state is always visible even if the
+ * animation is unsupported. Stagger with inline `animationDelay`.
+ * ---------------------------------------------------------------------------
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.rise {
+  animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+}
